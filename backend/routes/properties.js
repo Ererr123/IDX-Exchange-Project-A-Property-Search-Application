@@ -4,8 +4,8 @@ const pool = require('../db');
 
 router.get('/', async (req, res) => {
   try {
-    const limit = parseInt(req.query.limit) || 20;
-    const offset = parseInt(req.query.offset) || 0;
+    const limit = req.query.limit !== undefined ? parseInt(req.query.limit) : 20;
+    const offset = req.query.offset !== undefined ? parseInt(req.query.offset) : 0;
 
     if (limit < 1 || limit > 100) {
       return res.status(400).json({ error: 'limit must be between 1 and 100' });
