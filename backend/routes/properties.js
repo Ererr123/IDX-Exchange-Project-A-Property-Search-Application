@@ -2,6 +2,61 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db');
 
+// must be registered before /:id 
+router.get('/:id/openhouses', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!/^\d+$/.test(id) || id.length > 20) {
+      return res.status(400).json({ error: 'Invalid listing ID' });
+    }
+
+    const [property] = await pool.query(
+      'SELECT L_ListingID FROM rets_property WHERE L_ListingID = ?',
+      [id]
+    );
+
+    if (property.length === 0) {
+      return res.status(404).json({ error: `Property ${id} not found` });
+    }
+    // verify property exists before open house query
+    const [openhouses] = await pool.query(
+      'SELECT * FROM rets_openhouse WHERE L_ListingID = ? ORDER BY OpenHouseDate, OH_StartTime',
+      [id]
+    );
+
+    res.json(openhouses);
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// must be after /:id/openhouses
+router.get('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!/^\d+$/.test(id) || id.length > 20) {
+      return res.status(400).json({ error: 'Invalid listing ID' });
+    }
+
+    const [rows] = await pool.query(
+      'SELECT * FROM rets_property WHERE L_ListingID = ?',
+      [id]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: `Property ${id} not found` });
+    }
+
+    res.json(rows[0]);
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 router.get('/', async (req, res) => {
   try {
     const limit = req.query.limit !== undefined ? parseInt(req.query.limit) : 20;
@@ -14,6 +69,7 @@ router.get('/', async (req, res) => {
       return res.status(400).json({ error: 'offset must be a non-negative number' });
     }
 
+    // build where clause based on property filters
     const conditions = [];
     const values = [];
 
@@ -48,6 +104,7 @@ router.get('/', async (req, res) => {
 
     const where = conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : '';
 
+    // run count and data queries separately so we can return total alongside results
     const countQuery = `SELECT COUNT(*) as total FROM rets_property ${where}`;
     const dataQuery = `SELECT L_ListingID, L_Address, L_City, L_State, L_Zip, L_SystemPrice, L_Keyword2, LM_Dec_3, LM_Int2_3, L_Photos FROM rets_property ${where} LIMIT ? OFFSET ?`;
 
