@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { fetchProperties } from "../api/client";
 import PropertyCard from "../components/PropertyCard";
+import PropertyFilters from "../components/PropertyFilters";
 import "./ListingsPage.css";
 
 export default function ListingsPage() {
     const LIMIT = 20;
     const [page, setPage] = useState(1);
+    const [filters, setFilters] = useState({});
     const [properties, setProperties] = useState([]);
     const [total, setTotal] = useState(0);
     const [loading, setLoading] = useState(true);
@@ -18,6 +20,7 @@ export default function ListingsPage() {
                 setLoading(true);
                 setError("");
                 const data = await fetchProperties({
+                    ...filters,
                     limit: LIMIT,
                     offset: (page - 1) * LIMIT
                 });
@@ -38,7 +41,13 @@ export default function ListingsPage() {
             }
         }
         loadProperties();
-    }, [page]);
+    }, [page, filters]);
+
+    // reset to page 1 when filters change
+    function handleSearch(newFilters) {
+        setPage(1);
+        setFilters(newFilters);
+    }
 
     // show loading state
     if (loading) {
@@ -58,7 +67,6 @@ export default function ListingsPage() {
         );
     }
 
-    // show properties
     return (
         <div className="listings-page">
             <div className="page-header">
@@ -68,6 +76,16 @@ export default function ListingsPage() {
                     <strong>{total}</strong> properties
                 </p>
             </div>
+
+            <PropertyFilters onSearch={handleSearch} />
+
+            {/* no results message */}
+            {properties.length === 0 && (
+                <div className="status-container">
+                    <h2>No properties found matching your filters.</h2>
+                </div>
+            )}
+
             <div className="property-grid">
                 {properties.map((property) => (
                     <PropertyCard
@@ -76,23 +94,26 @@ export default function ListingsPage() {
                     />
                 ))}
             </div>
-            <div className="pagination">
-                <button
-                    disabled={page === 1}
-                    onClick={() => setPage(page - 1)}
-                >
-                    Previous
-                </button>
-                <span>
-                    Page {page} of {Math.ceil(total / LIMIT)}
-                </span>
-                <button
-                    disabled={page === Math.ceil(total / LIMIT)}
-                    onClick={() => setPage(page + 1)}
-                >
-                    Next
-                </button>
-            </div>
+
+            {total > 0 && (
+                <div className="pagination">
+                    <button
+                        disabled={page === 1}
+                        onClick={() => setPage(page - 1)}
+                    >
+                        Previous
+                    </button>
+                    <span>
+                        Page {page} of {Math.ceil(total / LIMIT)}
+                    </span>
+                    <button
+                        disabled={page === Math.ceil(total / LIMIT)}
+                        onClick={() => setPage(page + 1)}
+                    >
+                        Next
+                    </button>
+                </div>
+            )}
         </div>
     );
 }
