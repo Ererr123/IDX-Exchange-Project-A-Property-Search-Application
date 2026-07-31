@@ -6,16 +6,18 @@ const api = axios.create({
 });
 
 export async function fetchProperties(params = {}) {
-
     try {
-        const response = await api.get("/properties", {
-            params
-        });
+        const response = await api.get("/properties", { params });
         return response.data;
     } catch (error) {
-
         if (error.response) {
-            throw new Error(error.response.data.error);
+            // 500 from proxy means backend is unreachable
+            if (error.response.status === 500) {
+                throw new Error("Cannot connect to backend.");
+            }
+            throw new Error(
+                error.response.data?.error || `Server error: ${error.response.status}`
+            );
         }
         if (error.request) {
             throw new Error("Cannot connect to backend.");

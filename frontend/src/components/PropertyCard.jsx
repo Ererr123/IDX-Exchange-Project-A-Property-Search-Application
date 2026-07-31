@@ -37,9 +37,8 @@ export default function PropertyCard({ property }) {
 
 
     const image =
-        getFirstPhoto(property.L_Photos)
-        ||
-        "https://via.placeholder.com/400x250?text=No+Photo";
+    getFirstPhoto(property.L_Photos) ||
+    "https://placehold.co/400x250?text=No+Photo";
 
     return (
 

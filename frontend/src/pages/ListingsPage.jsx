@@ -6,38 +6,41 @@ import "./ListingsPage.css";
 export default function ListingsPage() {
     const LIMIT = 20;
     const [page, setPage] = useState(1);
-
     const [properties, setProperties] = useState([]);
     const [total, setTotal] = useState(0);
-
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-   useEffect(() => {
+    useEffect(() => {
+        // fetch properties from the backend api
+        async function loadProperties() {
+            try {
+                setLoading(true);
+                setError("");
+                const data = await fetchProperties({
+                    limit: LIMIT,
+                    offset: (page - 1) * LIMIT
+                });
 
-    // Fetch properties from the backend API
-    async function loadProperties() {
-        try {
+                // make sure we got valid data, not an html error page
+                if (!data || !data.results) {
+                    throw new Error("Cannot connect to backend.");
+                }
 
-            setLoading(true);
-            const data = await fetchProperties({
-                limit: LIMIT,
-                offset: (page - 1) * LIMIT
-            });
-
-            setProperties(data.results);
-            setTotal(data.total);
-
-        } catch (err) {
-            setError(err.message);
-        } finally {
-            setLoading(false);
+                setProperties(data.results);
+                setTotal(data.total);
+            } catch (err) {
+                setError(err.message);
+                setProperties([]);
+                setTotal(0);
+            } finally {
+                setLoading(false);
+            }
         }
-    }
-    loadProperties();
+        loadProperties();
     }, [page]);
 
-    // Show loading state
+    // show loading state
     if (loading) {
         return (
             <div className="status-container">
@@ -45,26 +48,8 @@ export default function ListingsPage() {
             </div>
         );
     }
-    // Pagination controls
-    <div className="pagination">
-        <button
-            disabled={page === 1}
-            onClick={() => setPage(page - 1)}
-        >
-            Previous
-        </button>
-        <span>
-            Page {page} of {Math.ceil(total / LIMIT)}
-        </span>
-        <button
-            disabled={page === Math.ceil(total / LIMIT)}
-            onClick={() => setPage(page + 1)}
-        >
-            Next
-        </button>
-    </div>
 
-    // Show error state
+    // show error state
     if (error) {
         return (
             <div className="status-container">
@@ -73,7 +58,7 @@ export default function ListingsPage() {
         );
     }
 
-    // Show properties
+    // show properties
     return (
         <div className="listings-page">
             <div className="page-header">
@@ -85,15 +70,12 @@ export default function ListingsPage() {
             </div>
             <div className="property-grid">
                 {properties.map((property) => (
-
                     <PropertyCard
                         key={property.L_ListingID}
                         property={property}
                     />
                 ))}
             </div>
-
-
             <div className="pagination">
                 <button
                     disabled={page === 1}
@@ -105,9 +87,7 @@ export default function ListingsPage() {
                     Page {page} of {Math.ceil(total / LIMIT)}
                 </span>
                 <button
-                    disabled={
-                        page === Math.ceil(total / LIMIT)
-                    }
+                    disabled={page === Math.ceil(total / LIMIT)}
                     onClick={() => setPage(page + 1)}
                 >
                     Next
