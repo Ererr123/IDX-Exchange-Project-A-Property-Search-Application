@@ -1,8 +1,14 @@
-import { render, screen } from '@testing-library/react';
-import App from './App';
+import { render, screen } from "@testing-library/react";
+import App from "./App";
 
-test('renders learn react link', () => {
-  render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+jest.mock("./api/client", () => ({
+    fetchProperties: jest.fn().mockResolvedValue({
+        total: 0,
+        results: []
+    })
+}));
+
+test("renders property listings heading", () => {
+    render(<App />);
+    expect(screen.getByText("Loading properties...")).toBeInTheDocument();
 });
