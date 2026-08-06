@@ -25,7 +25,7 @@ export default function ListingsPage() {
                     offset: (page - 1) * LIMIT
                 });
 
-                // make sure we got valid data, not an html error page
+                // make sure we got valid data, not an html error
                 if (!data || !data.results) {
                     throw new Error("Cannot connect to backend.");
                 }
