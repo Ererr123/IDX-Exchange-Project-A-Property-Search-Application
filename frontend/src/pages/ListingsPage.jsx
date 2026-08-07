@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { fetchProperties } from "../api/client";
 import PropertyCard from "../components/PropertyCard";
 import PropertyFilters from "../components/PropertyFilters";
+import Pagination from "../components/Pagination";
 import "./ListingsPage.css";
 
 export default function ListingsPage() {
@@ -25,7 +26,7 @@ export default function ListingsPage() {
                     offset: (page - 1) * LIMIT
                 });
 
-                // make sure we got valid data, not an html error
+                // make sure we got valid data, not an html error page
                 if (!data || !data.results) {
                     throw new Error("Cannot connect to backend.");
                 }
@@ -42,6 +43,12 @@ export default function ListingsPage() {
         }
         loadProperties();
     }, [page, filters]);
+
+    // scroll to top and update page
+    function handlePageChange(newPage) {
+        window.scrollTo(0, 0);
+        setPage(newPage);
+    }
 
     // reset to page 1 when filters change
     function handleSearch(newFilters) {
@@ -67,12 +74,17 @@ export default function ListingsPage() {
         );
     }
 
+    // calculate showing x-y of z
+    const showingFrom = total === 0 ? 0 : (page - 1) * LIMIT + 1;
+    const showingTo = Math.min(page * LIMIT, total);
+    const totalPages = Math.ceil(total / LIMIT);
+
     return (
         <div className="listings-page">
             <div className="page-header">
                 <h1>Property Listings</h1>
                 <p>
-                    Showing <strong>{properties.length}</strong> of{" "}
+                    Showing <strong>{showingFrom}-{showingTo}</strong> of{" "}
                     <strong>{total}</strong> properties
                 </p>
             </div>
@@ -95,25 +107,11 @@ export default function ListingsPage() {
                 ))}
             </div>
 
-            {total > 0 && (
-                <div className="pagination">
-                    <button
-                        disabled={page === 1}
-                        onClick={() => setPage(page - 1)}
-                    >
-                        Previous
-                    </button>
-                    <span>
-                        Page {page} of {Math.ceil(total / LIMIT)}
-                    </span>
-                    <button
-                        disabled={page === Math.ceil(total / LIMIT)}
-                        onClick={() => setPage(page + 1)}
-                    >
-                        Next
-                    </button>
-                </div>
-            )}
+            <Pagination
+                currentPage={page}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+            />
         </div>
     );
 }
