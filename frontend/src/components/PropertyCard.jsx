@@ -1,38 +1,21 @@
 import { useNavigate } from "react-router-dom";
+import PropertyImageCarousel from "./PropertyImageCarousel";
 import "./PropertyCard.css";
-
-// gets the first photo from L_Photos
-function getFirstPhoto(photoString) {
-    if (!photoString) return null;
-    try {
-        const photos = JSON.parse(photoString);
-        if (!Array.isArray(photos) || photos.length === 0) return null;
-        return photos[0];
-    } catch (error) {
-        console.error("Invalid L_Photos JSON:", photoString);
-        return null;
-    }
-}
 
 export default function PropertyCard({ property }) {
     const navigate = useNavigate();
 
-    const image =
-        getFirstPhoto(property.L_Photos) ||
-        "https://placehold.co/400x250?text=No+Photo";
-
     return (
-        <div
-            className="property-card"
-            onClick={() => navigate(`/property/${property.L_ListingID}`)}
-            style={{ cursor: "pointer" }}
-        >
-            <img
-                className="property-image"
-                src={image}
-                alt="Property"
+        <div className="property-card">
+            <PropertyImageCarousel
+                photoString={property.L_Photos}
+                listingId={property.L_ListingID}
             />
-            <div className="property-content">
+            <div
+                className="property-content"
+                onClick={() => navigate(`/property/${property.L_ListingID}`)}
+                style={{ cursor: "pointer" }}
+            >
                 <h2>
                     ${Number(property.L_SystemPrice).toLocaleString()}
                 </h2>

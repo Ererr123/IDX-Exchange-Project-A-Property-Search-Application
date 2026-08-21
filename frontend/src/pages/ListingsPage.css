@@ -70,3 +70,23 @@
 .pagination span {
     font-size:18px;
 }
+
+.sort-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.sort-controls label {
+    font-size: 14px;
+    color: #666;
+}
+
+.sort-controls select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+}

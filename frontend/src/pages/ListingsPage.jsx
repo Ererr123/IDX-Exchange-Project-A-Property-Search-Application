@@ -9,6 +9,8 @@ export default function ListingsPage() {
     const LIMIT = 20;
     const [page, setPage] = useState(1);
     const [filters, setFilters] = useState({});
+    const [sortBy, setSortBy] = useState("");
+    const [sortOrder, setSortOrder] = useState("desc");
     const [properties, setProperties] = useState([]);
     const [total, setTotal] = useState(0);
     const [loading, setLoading] = useState(true);
@@ -20,11 +22,20 @@ export default function ListingsPage() {
             try {
                 setLoading(true);
                 setError("");
-                const data = await fetchProperties({
+
+                const params = {
                     ...filters,
                     limit: LIMIT,
                     offset: (page - 1) * LIMIT
-                });
+                };
+
+                // only add sort params if sortBy is set
+                if (sortBy) {
+                    params.sortBy = sortBy;
+                    params.sortOrder = sortOrder;
+                }
+
+                const data = await fetchProperties(params);
 
                 // make sure we got valid data, not an html error page
                 if (!data || !data.results) {
@@ -42,7 +53,7 @@ export default function ListingsPage() {
             }
         }
         loadProperties();
-    }, [page, filters]);
+    }, [page, filters, sortBy, sortOrder]);
 
     // scroll to top and update page
     function handlePageChange(newPage) {
@@ -50,10 +61,20 @@ export default function ListingsPage() {
         setPage(newPage);
     }
 
-    // reset to page 1 when filters change
+    // reset to page 1 when filters change, also reset sort
     function handleSearch(newFilters) {
         setPage(1);
+        setSortBy("");
+        setSortOrder("desc");
         setFilters(newFilters);
+    }
+
+    // update sort and reset to page 1
+    function handleSortChange(e) {
+        const [newSortBy, newSortOrder] = e.target.value.split("-");
+        setSortBy(newSortBy);
+        setSortOrder(newSortOrder);
+        setPage(1);
     }
 
     // show loading state
@@ -74,7 +95,6 @@ export default function ListingsPage() {
         );
     }
 
-    // calculate showing x-y of z
     const showingFrom = total === 0 ? 0 : (page - 1) * LIMIT + 1;
     const showingTo = Math.min(page * LIMIT, total);
     const totalPages = Math.ceil(total / LIMIT);
@@ -90,6 +110,25 @@ export default function ListingsPage() {
             </div>
 
             <PropertyFilters onSearch={handleSearch} />
+
+            {/* sort controls */}
+            <div className="sort-controls">
+                <label htmlFor="sort">Sort by:</label>
+                <select
+                    id="sort"
+                    value={sortBy ? `${sortBy}-${sortOrder}` : ""}
+                    onChange={handleSortChange}
+                >
+                    <option value="">Default</option>
+                    <option value="price-asc">Price: Low to High</option>
+                    <option value="price-desc">Price: High to Low</option>
+                    <option value="sqft-desc">Sqft: Largest First</option>
+                    <option value="sqft-asc">Sqft: Smallest First</option>
+                    <option value="beds-desc">Most Beds</option>
+                    <option value="date-desc">Newest First</option>
+                    <option value="date-asc">Oldest First</option>
+                </select>
+            </div>
 
             {/* no results message */}
             {properties.length === 0 && (
