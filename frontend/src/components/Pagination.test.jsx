@@ -3,12 +3,11 @@ import Pagination from "./Pagination";
 
 describe("Pagination", () => {
     test("renders nothing when totalPages is 1", () => {
-        const { container } = render(
-            <Pagination currentPage={1} totalPages={1} onPageChange={jest.fn()} />
-        );
-        expect(container.firstChild).toBeNull();
-    });
-
+    const { container } = render(
+        <Pagination currentPage={1} totalPages={1} onPageChange={jest.fn()} />
+    );
+    expect(container).toBeEmptyDOMElement();
+});
     test("disables previous button on page 1", () => {
         render(
             <Pagination currentPage={1} totalPages={10} onPageChange={jest.fn()} />

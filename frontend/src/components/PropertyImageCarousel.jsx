@@ -1,17 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./PropertyImageCarousel.css";
-
-// parse photos from L_Photos json string
-function parsePhotos(photoString) {
-    if (!photoString) return [];
-    try {
-        const photos = JSON.parse(photoString);
-        return Array.isArray(photos) ? photos : [];
-    } catch {
-        return [];
-    }
-}
+import { parsePhotos } from "../utils/photoUtils";
 
 export default function PropertyImageCarousel({ photoString, listingId }) {
     const [currentIndex, setCurrentIndex] = useState(0);

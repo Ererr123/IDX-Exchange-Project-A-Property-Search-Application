@@ -11,7 +11,8 @@ export default class ErrorBoundary extends Component {
     }
 
     componentDidCatch(error, info) {
-        console.error("render error caught by boundary:", error, info);
+        // errors are caught and displayed in the recovery ui however cause crash
+        //when loged so had to remove for now
     }
 
     render() {

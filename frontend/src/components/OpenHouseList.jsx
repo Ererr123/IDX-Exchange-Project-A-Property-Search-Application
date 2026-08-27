@@ -1,37 +1,5 @@
 import "./OpenHouseList.css";
-
-// format time from HH:MM:SS to 12hr format
-function formatTime(timeString) {
-    if (!timeString) return "";
-    const [hours, minutes] = timeString.split(":");
-    const h = parseInt(hours);
-    const ampm = h >= 12 ? "PM" : "AM";
-    const hour12 = h % 12 || 12;
-    return `${hour12}:${minutes} ${ampm}`;
-}
-
-// format date from ISO string
-function formatDate(dateString) {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric"
-    });
-}
-
-// extract remarks from all_data json blob
-function getRemarks(allData) {
-    if (!allData) return null;
-    try {
-        const parsed = JSON.parse(allData);
-        return parsed.OpenHouseRemarks || null;
-    } catch {
-        return null;
-    }
-}
+import { formatTime, formatDate, getRemarks } from "../utils/formatUtils";
 
 export default function OpenHouseList({ openHouses }) {
     if (!openHouses || openHouses.length === 0) {
