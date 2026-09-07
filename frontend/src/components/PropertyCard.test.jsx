@@ -1,16 +1,12 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
 import PropertyCard from "./PropertyCard";
 
-// Mock the useNavigate hook from react-router-dom
 const mockNavigate = jest.fn();
 
 jest.mock("react-router-dom", () => ({
-    ...jest.requireActual("react-router-dom"),
     useNavigate: () => mockNavigate
 }));
 
-// Sample property data for testing
 const sampleProperty = {
     L_ListingID: "1118422731",
     L_Address: "1461 Laurel Way",
@@ -23,68 +19,43 @@ const sampleProperty = {
     L_Photos: '["https://example.com/photo1.jpg"]'
 };
 
-// Test suite for PropertyCard component
 describe("PropertyCard", () => {
     beforeEach(() => {
         mockNavigate.mockClear();
     });
 
     test("renders price correctly", () => {
-        render(
-            <MemoryRouter>
-                <PropertyCard property={sampleProperty} />
-            </MemoryRouter>
-        );
+        render(<PropertyCard property={sampleProperty} />);
         expect(screen.getByText("$3,950,000")).toBeInTheDocument();
     });
 
     test("renders address correctly", () => {
-        render(
-            <MemoryRouter>
-                <PropertyCard property={sampleProperty} />
-            </MemoryRouter>
-        );
+        render(<PropertyCard property={sampleProperty} />);
         expect(screen.getByText("1461 Laurel Way")).toBeInTheDocument();
     });
 
     test("renders city and state correctly", () => {
-        render(
-            <MemoryRouter>
-                <PropertyCard property={sampleProperty} />
-            </MemoryRouter>
-        );
+        render(<PropertyCard property={sampleProperty} />);
         expect(screen.getByText("Beverly Hills, CA")).toBeInTheDocument();
     });
 
-    test("renders beds, baths, and sqft", () => {
-        render(
-            <MemoryRouter>
-                <PropertyCard property={sampleProperty} />
-            </MemoryRouter>
-        );
+    test("renders beds baths and sqft", () => {
+        render(<PropertyCard property={sampleProperty} />);
         expect(screen.getByText("4")).toBeInTheDocument();
         expect(screen.getByText("5.0")).toBeInTheDocument();
         expect(screen.getByText("3677")).toBeInTheDocument();
     });
 
     test("navigates to detail page when content is clicked", () => {
-        render(
-            <MemoryRouter>
-                <PropertyCard property={sampleProperty} />
-            </MemoryRouter>
-        );
+        render(<PropertyCard property={sampleProperty} />);
         fireEvent.click(screen.getByText("1461 Laurel Way"));
         expect(mockNavigate).toHaveBeenCalledWith("/property/1118422731");
     });
 
     test("shows placeholder when no photos", () => {
         const noPhotoProperty = { ...sampleProperty, L_Photos: "" };
-        render(
-            <MemoryRouter>
-                <PropertyCard property={noPhotoProperty} />
-            </MemoryRouter>
-        );
-        const img = screen.getAllByRole("img")[0];
-        expect(img.src).toContain("placehold.co");
+        render(<PropertyCard property={noPhotoProperty} />);
+        const imgs = screen.getAllByRole("img");
+        expect(imgs[0].src).toContain("placehold.co");
     });
 });

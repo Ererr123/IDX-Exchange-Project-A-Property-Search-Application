@@ -11,6 +11,7 @@
     "axios": "^1.18.1",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
+    "react-router": "^8.3.1",
     "react-router-dom": "^7.18.2",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"
@@ -38,5 +39,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "jest": "^27.5.1",
+    "supertest": "^7.2.2"
   }
 }
